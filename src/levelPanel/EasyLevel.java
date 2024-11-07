@@ -2,7 +2,6 @@ package levelPanel;
 
 import gameproject.Bird;
 import gameproject.Bullet;
-import gameproject.KeyHandler;
 import gameproject.Meteorite;
 import gameproject.Player;
 import java.awt.Font;
@@ -22,9 +21,13 @@ public class EasyLevel extends JPanel implements Runnable {
 
     private final int screenWidth = 1100;
     private final int screenHeight = 600;
-    JLabel jlbScorePoint;
+    private JLabel jlbScorePoint;
+    private JLabel jlbTimer;
+    Font font20;
 
-    private boolean running;
+    private boolean panelActive;
+    private boolean isPlaying;
+    private boolean isWinning;
     private Random random;
 
     private ArrayList<Bird> birds;
@@ -32,46 +35,51 @@ public class EasyLevel extends JPanel implements Runnable {
     private ArrayList<Bullet> bullets;
 
     private int birdCount;
-    private int meteoritesCount;
+    private int meteoriteCount;
     private int bulletCount;
 
-    private final int birdCountMax = 2;
-    private final int meteoritesCountMax = 3;
-    private final int bulletCountMax = 50;
+    private int loopCounter;
+    private int timePlay;
+
+    private final int BIRD_COUNT_MAX = 3;
+    private final int METEORITE_COUNT_MAX = 5;
+    private final int BULLET_COUNT_MAX = 50;
+    private final int GAME_TIMER = 15;
 
     private Player player;
-    private KeyHandler keyListen;
-
     private int scorePoint;
 
     public EasyLevel() {
         setLayout(null);
-        
+        font20 = new Font("Arial", Font.BOLD, 20);
 
         // Level title label
         JLabel jlbLevel = new JLabel("Easy");
-        jlbLevel.setBounds(10, 5, 100, 20);
-        jlbLevel.setFont(new Font("Arial", Font.BOLD, 20));
+        jlbLevel.setBounds(10, 8, 100, 20);
+        jlbLevel.setFont(font20);
         add(jlbLevel);
+
+        //timer
+        jlbTimer = new JLabel(String.valueOf(GAME_TIMER - timePlay));
+        jlbTimer.setBounds(520, 8, 100, 20);
+        jlbTimer.setFont(font20);
+        add(jlbTimer);
 
         //ScorePoint
         jlbScorePoint = new JLabel("Score: " + scorePoint);
-        jlbScorePoint.setBounds(975, 5, 110, 20);
-        jlbScorePoint.setFont(new Font("Arial", Font.BOLD, 20));
+        jlbScorePoint.setBounds(975, 8, 110, 20);
+        jlbScorePoint.setFont(font20);
         add(jlbScorePoint);
 
         //set value
-        running = true;
+        panelActive = true;
         random = new Random();
         birds = new ArrayList<>();
-        birdCount = 0;
         meteorites = new ArrayList<>();
-        meteoritesCount = 0;
         bullets = new ArrayList<>();
-        bulletCount = 0;
         player = new Player(500);
-        keyListen = new KeyHandler();
-        scorePoint = 100;
+
+        resetLevel();
 
         //player act as a event manager that manage the event passed by EasyLevel
         addMouseMotionListener(player); //handle mouse motion
@@ -85,40 +93,72 @@ public class EasyLevel extends JPanel implements Runnable {
     }
 
     public void stop() {
-        running = false;
+        panelActive = false;
         player.setIsMoving(false);
+        resetLevel();
+    }
+
+    public void resetLevel() {
+        isPlaying = true;
+        isWinning = true;
+        birds.clear();
+        meteorites.clear();
+        bullets.clear();
+
+        birdCount = 0;
+        meteoriteCount = 0;
+        bulletCount = 0;
+        loopCounter = 0;
+        timePlay = 0;
+        scorePoint = 100;
     }
 
     @Override
     public void run() {
-        running = true;
 
-        while (running) {
+        panelActive = true;
 
-            if (random.nextDouble() < 0.01 && birdCount < birdCountMax) { // 0.1% chance
-                birdCount++;
-                int flyHeight = random.nextInt(250) + 50; // Random height between 50-300
-                Bird newBird = new Bird(flyHeight);
-                birds.add(newBird);
-                new Thread(newBird).start(); // Start bird's movement
+        while (panelActive) {
+
+            if (isPlaying) {
+                //check score point
+                isPlaying = !(scorePoint <= 0 || (timePlay >= GAME_TIMER && isWinning));
+                isWinning = scorePoint > 0;
+
+                //check time
+                if (loopCounter >= 60) {
+                    timePlay += 1;
+                    loopCounter = 0;
+                    System.out.println("EasyLevel is running for " + timePlay + " seconds");
+
+                }
+                loopCounter++;
+
+                if (random.nextDouble() < 0.01 && birdCount < BIRD_COUNT_MAX) { // 0.1% chance
+                    birdCount++;
+                    int flyHeight = random.nextInt(250) + 50; // Random height between 50-300
+                    Bird newBird = new Bird(flyHeight);
+                    birds.add(newBird);
+                    new Thread(newBird).start(); // Start bird's movement
+                }
+
+                if (random.nextDouble() < 0.01 && meteoriteCount < METEORITE_COUNT_MAX) { // 0.1% chance
+                    meteoriteCount++;
+                    int fallPosi = random.nextInt(screenWidth - 20); // Random position between 0-screenWidth - 20
+                    Meteorite newMeteorite = new Meteorite(fallPosi);
+                    meteorites.add(newMeteorite);
+                    new Thread(newMeteorite).start(); // Start Meteorite's movement
+                }
+
+                if (player.getClick() && bulletCount < BULLET_COUNT_MAX) {
+                    bulletCount++;
+                    Bullet newBullet = new Bullet(player);
+                    bullets.add(newBullet);
+                    new Thread(newBullet).start(); // Start Bullet's movement
+                    player.setClick(false);
+                }
+
             }
-
-            if (random.nextDouble() < 0.01 && meteoritesCount < meteoritesCountMax) { // 0.1% chance
-                meteoritesCount++;
-                int fallPosi = random.nextInt(screenWidth - 20); // Random width between 0-screenWidth - 20
-                Meteorite newMeteorite = new Meteorite(fallPosi);
-                meteorites.add(newMeteorite);
-                new Thread(newMeteorite).start(); // Start bird's movement
-            }
-
-            if (player.getClick() && bulletCount < bulletCountMax) {
-                bulletCount++;
-                Bullet newBullet = new Bullet(player);
-                bullets.add(newBullet);
-                new Thread(newBullet).start();
-                player.setClick(false);
-            }
-
             update();
             checkCollision();
             repaint();
@@ -128,7 +168,6 @@ public class EasyLevel extends JPanel implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -136,7 +175,7 @@ public class EasyLevel extends JPanel implements Runnable {
         updateBirds();
         updateMeteorites();
         updateBullet();
-        updateScorePoint();
+        updateLabel();
     }
 
     private void checkCollision() {
@@ -151,11 +190,12 @@ public class EasyLevel extends JPanel implements Runnable {
             while (birdIterator.hasNext()) {
                 Bird bird = birdIterator.next();
                 if (bullet.getBounds().intersects(bird.getBounds())) {
+                    bird.setIsAlive(false);
                     bulletIterator.remove();
-                    birdIterator.remove();
                     bulletCount--;
                     birdCount--;
-                    scorePoint -= 20;
+                    scorePoint -= 10;
+                    timePlay -= 5;
                     bulletHit = true;
                     break; // Exit inner loop since this bullet is now gone
                 }
@@ -173,7 +213,7 @@ public class EasyLevel extends JPanel implements Runnable {
                     bulletIterator.remove();
                     meteoriteIterator.remove();
                     bulletCount--;
-                    meteoritesCount--;
+                    meteoriteCount--;
                     scorePoint += 2;
                     break;
                 }
@@ -181,8 +221,9 @@ public class EasyLevel extends JPanel implements Runnable {
         }
     }
 
-    private void updateScorePoint() {
+    private void updateLabel() {
         jlbScorePoint.setText("Score: " + scorePoint);
+        jlbTimer.setText(String.valueOf(GAME_TIMER - timePlay));
     }
 
     private void updateBullet() {
@@ -214,7 +255,8 @@ public class EasyLevel extends JPanel implements Runnable {
             Meteorite meteorite = iterator.next();
             if (meteorite.getY() > screenHeight) {
                 iterator.remove(); // Safely remove the bird if it’s off-screen
-                meteoritesCount--;
+                meteoriteCount--;
+                scorePoint -= 10;
             }
         }
     }
@@ -228,6 +270,12 @@ public class EasyLevel extends JPanel implements Runnable {
             // Background image or color
             g2d.drawImage(ImageIO.read(getClass().getResourceAsStream("/background/Bg1.png")), 0, 0, screenWidth, screenHeight, this);
 
+            if (isWinning && !isPlaying) {
+                g2d.drawImage(ImageIO.read(getClass().getResourceAsStream("/background/Success.png")), 0, 0, screenWidth, screenHeight, this);
+            }
+            if (!isWinning && !isPlaying) {
+                g2d.drawImage(ImageIO.read(getClass().getResourceAsStream("/background/Fail.png")), 0, 0, screenWidth, screenHeight, this);
+            }
         } catch (IOException ex) {
             Logger.getLogger(EasyLevel.class.getName()).log(Level.SEVERE, null, ex);
         }

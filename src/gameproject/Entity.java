@@ -6,16 +6,19 @@ import java.awt.image.BufferedImage;
 
 public abstract class Entity implements Runnable {
 
-    protected int x;
-    protected int y;
-    protected int speed;
-    protected BufferedImage[] frames;
-    protected int frameIndex;
-    protected boolean isMoving;
     protected final int screenWidth = 1100;
     protected final int screenHeight = 600;
     protected int imgWidth;
     protected int imgHeight;
+
+    protected int x;
+    protected int y;
+    protected int speed;
+    protected int loopCounter;
+
+    protected int frameIndex;
+    protected boolean isMoving;
+    protected BufferedImage[] frames;
 
     Entity(int x, int y) {
         this.x = x;
@@ -34,6 +37,7 @@ public abstract class Entity implements Runnable {
 
     abstract void loadImages();
 
+    //getter
     public int getX() {
         return x;
     }
@@ -54,6 +58,7 @@ public abstract class Entity implements Runnable {
         return frameIndex;
     }
 
+    //setter
     public void setX(int x) {
         this.x = x;
     }

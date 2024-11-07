@@ -18,14 +18,20 @@ public class GameProject extends JFrame {
     ImpossibleLevel lv4;
     Thread currentLevelThread;
     int currentLevel;
+    int screenWidth = 1100;
+    int screenHeight = 600;
 
     public GameProject() {
         setTitle("Protect Planet");
-        setSize(1100, 600);
+        setSize(screenWidth, screenHeight);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        setLayout(null);
+
         menuPanel = new MenuPanel(this);
+        menuPanel.setBounds(0, 0, screenWidth, screenHeight);
         add(menuPanel);
 
         addKeyListener(listen);
@@ -37,6 +43,11 @@ public class GameProject extends JFrame {
         lv3 = new HardLevel();
         lv4 = new ImpossibleLevel();
         currentLevel = 0;
+
+        lv1.setBounds(0, 0, screenWidth, screenHeight);
+        lv2.setBounds(0, 0, screenWidth, screenHeight);
+        lv3.setBounds(0, 0, screenWidth, screenHeight);
+        lv4.setBounds(0, 0, screenWidth, screenHeight);
 
         setVisible(true);
 
@@ -82,10 +93,14 @@ public class GameProject extends JFrame {
     public void stopCurrentLevel() {
         if (currentLevelThread != null && currentLevelThread.isAlive()) {
             switch (currentLevel) {
-                case 1 -> lv1.stop();
-                case 2 -> lv2.stop();
-                case 3 -> lv3.stop();
-                case 4 -> lv4.stop();
+                case 1 ->
+                    lv1.stop();
+                case 2 ->
+                    lv2.stop();
+                case 3 ->
+                    lv3.stop();
+                case 4 ->
+                    lv4.stop();
                 default -> {
                 }
             }
@@ -117,10 +132,13 @@ public class GameProject extends JFrame {
         public void keyReleased(KeyEvent e) {
             //nothing
         }
-
     }
 
     public static void main(String[] args) {
         new GameProject();
     }
+
 }
+// black transition, 
+//plane, grayBird reverse, explode animation,
+//player walk,sound effect

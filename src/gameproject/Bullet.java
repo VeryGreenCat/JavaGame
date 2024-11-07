@@ -14,7 +14,7 @@ public class Bullet extends Entity {
     public Bullet(Player player) {//player.getY()-20
         super(player.getX(), player.getMouseX() < player.getX() ? player.getY() - 20 : player.getY() + 17);
         angle = player.getAngle();
-        setSpeed(10);
+        setSpeed(15);
         setIsMoving(true);
         loadImages();
     }
