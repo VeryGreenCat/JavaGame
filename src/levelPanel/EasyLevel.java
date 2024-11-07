@@ -35,9 +35,9 @@ public class EasyLevel extends JPanel implements Runnable {
     private int meteoritesCount;
     private int bulletCount;
 
-    private final int birdCountMax = 5;
+    private final int birdCountMax = 2;
     private final int meteoritesCountMax = 3;
-    private final int bulletCountMax = 20;
+    private final int bulletCountMax = 50;
 
     private Player player;
     private KeyHandler keyListen;

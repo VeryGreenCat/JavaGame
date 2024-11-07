@@ -11,8 +11,8 @@ public class Bullet extends Entity {
 
     private double angle;
 
-    public Bullet(Player player) {
-        super(player.getX(), player.getY());
+    public Bullet(Player player) {//player.getY()-20
+        super(player.getX(), player.getMouseX() < player.getX() ? player.getY() - 20 : player.getY() + 17);
         angle = player.getAngle();
         setSpeed(10);
         setIsMoving(true);
@@ -31,7 +31,7 @@ public class Bullet extends Entity {
         imgWidth = frames[0].getWidth();
         imgHeight = frames[0].getHeight();
     }
-    
+
     @Override
     public void draw(Graphics2D g2d) {
         if (isMoving && frames[0] != null) {
