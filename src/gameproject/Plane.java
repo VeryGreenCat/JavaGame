@@ -6,7 +6,7 @@ public class Plane extends Entity {
 
     public Plane(int flyHeight) {
         super(0, flyHeight);
-        setSpeed(15);
+        setSpeed(10);
         setFrameIndex(0);
         setIsMoving(true);
         loadImages(2, "/Plane/fly");

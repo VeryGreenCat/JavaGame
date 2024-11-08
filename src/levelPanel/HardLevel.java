@@ -137,6 +137,7 @@ public class HardLevel extends JPanel implements Runnable {
         birds.clear();
         grayBirds.clear();
         meteorites.clear();
+        planes.clear();
         bullets.clear();
 
         showMinusPoint = false;

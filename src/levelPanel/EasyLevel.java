@@ -65,7 +65,6 @@ public class EasyLevel extends JPanel implements Runnable {
         JLabel jlbLevel = new JLabel("Easy");
         jlbLevel.setBounds(10, 8, 100, 20);
         jlbLevel.setFont(font20);
-        jlbLevel.setForeground(Color.white);
         add(jlbLevel);
 
         //minusPoint
@@ -93,7 +92,6 @@ public class EasyLevel extends JPanel implements Runnable {
         jlbScorePoint = new JLabel("Score: " + scorePoint);
         jlbScorePoint.setBounds(975, 8, 110, 20);
         jlbScorePoint.setFont(font20);
-        jlbScorePoint.setForeground(Color.white);
         add(jlbScorePoint);
 
         //set value
