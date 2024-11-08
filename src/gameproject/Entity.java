@@ -70,6 +70,10 @@ public abstract class Entity implements Runnable {
     public int getFrameIndex() {
         return frameIndex;
     }
+    
+    public int getImgWidth() {
+        return imgWidth;
+    }
 
     //setter
     public void setX(int x) {

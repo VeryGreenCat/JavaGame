@@ -6,7 +6,7 @@ public class Plane extends Entity {
 
     public Plane(int flyHeight) {
         super(0, flyHeight);
-        setSpeed(10);
+        setSpeed(15);
         setFrameIndex(0);
         setIsMoving(true);
         loadImages(2, "/Plane/fly");
@@ -20,6 +20,9 @@ public class Plane extends Entity {
             imgWidth *= -1;
             speed *= -1;
         }
+        
+        imgWidth/=5;
+        imgHeight/=5;
     }
 
     @Override
@@ -40,5 +43,10 @@ public class Plane extends Entity {
                 e.printStackTrace();
             }
         }
+    }
+    
+    //getter
+    public boolean getIsReturning() {
+        return this.returning;
     }
 }

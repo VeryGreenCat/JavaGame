@@ -61,8 +61,6 @@ public class NormalLevel extends JPanel implements Runnable {
     private Player player;
     private int scorePoint;
 
-    private volatile boolean running = true;
-
     public NormalLevel() {
         setLayout(null);
         font20 = new Font("Arial", Font.BOLD, 20);
