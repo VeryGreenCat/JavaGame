@@ -42,8 +42,6 @@ public class MenuPanel extends JPanel {
         random = new Random();
         birds = new ArrayList<>();
 
-        
-
         jbtEasy.addActionListener(listen);
         jbtNormal.addActionListener(listen);
         jbtHard.addActionListener(listen);
@@ -68,7 +66,7 @@ public class MenuPanel extends JPanel {
         add(jbtNormal);
         add(jbtHard);
         add(jbtImpossible);
-        
+
         pb = new paintBird();
         pb.setBounds(0, 0, screenWidth, screenHeight);
         pb.setOpaque(false);

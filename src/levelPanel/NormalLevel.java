@@ -2,8 +2,10 @@ package levelPanel;
 
 import gameproject.Bird;
 import gameproject.Bullet;
+import gameproject.GrayBird;
 import gameproject.Meteorite;
 import gameproject.Player;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,29 +27,41 @@ public class NormalLevel extends JPanel implements Runnable {
     private JLabel jlbTimer;
     Font font20;
 
+    JLabel jlbMinusPoint;
+    private boolean showMinusPoint;
+    private int pointMinus;
+    JLabel jlbPlusTime;
+    private boolean showPlusTime;
+    private int timePlus;
+
     private boolean panelActive;
     private boolean isPlaying;
     private boolean isWinning;
     private Random random;
 
     private ArrayList<Bird> birds;
+    private ArrayList<GrayBird> grayBirds;
     private ArrayList<Meteorite> meteorites;
     private ArrayList<Bullet> bullets;
 
     private int birdCount;
+    private int grayBirdCount;
     private int meteoriteCount;
     private int bulletCount;
 
     private int loopCounter;
     private int timePlay;
 
-    private final int BIRD_COUNT_MAX = 3;
-    private final int METEORITE_COUNT_MAX = 5;
+    private final int BIRD_COUNT_MAX = 2;
+    private final int GRAY_BIRD_COUNT_MAX = 4;
+    private final int METEORITE_COUNT_MAX = 6;
     private final int BULLET_COUNT_MAX = 50;
-    private final int GAME_TIMER = 15;
+    private final int GAME_TIMER = 30;
 
     private Player player;
     private int scorePoint;
+
+    private volatile boolean running = true;
 
     public NormalLevel() {
         setLayout(null);
@@ -58,6 +72,21 @@ public class NormalLevel extends JPanel implements Runnable {
         jlbLevel.setBounds(10, 8, 100, 20);
         jlbLevel.setFont(font20);
         add(jlbLevel);
+
+        //minusPoint
+        showMinusPoint = false;
+        jlbMinusPoint = new JLabel("");
+        jlbMinusPoint.setBounds(1042, 35, 110, 20);
+        jlbMinusPoint.setFont(font20);
+        add(jlbMinusPoint);
+
+        //plusTime
+        showPlusTime = false;
+        jlbPlusTime = new JLabel("");
+        jlbPlusTime.setBounds(520, 35, 110, 20);
+        jlbPlusTime.setFont(font20);
+        jlbPlusTime.setForeground(Color.green);
+        add(jlbPlusTime);
 
         //timer
         jlbTimer = new JLabel(String.valueOf(GAME_TIMER - timePlay));
@@ -75,6 +104,7 @@ public class NormalLevel extends JPanel implements Runnable {
         panelActive = true;
         random = new Random();
         birds = new ArrayList<>();
+        grayBirds = new ArrayList<>();
         meteorites = new ArrayList<>();
         bullets = new ArrayList<>();
         player = new Player(500);
@@ -102,10 +132,17 @@ public class NormalLevel extends JPanel implements Runnable {
         isPlaying = true;
         isWinning = true;
         birds.clear();
+        grayBirds.clear();
         meteorites.clear();
         bullets.clear();
 
+        showMinusPoint = false;
+        showPlusTime = false;
+        jlbMinusPoint.setText("");
+        jlbPlusTime.setText("");
+
         birdCount = 0;
+        grayBirdCount = 0;
         meteoriteCount = 0;
         bulletCount = 0;
         loopCounter = 0;
@@ -115,7 +152,6 @@ public class NormalLevel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-
         panelActive = true;
 
         while (panelActive) {
@@ -131,6 +167,27 @@ public class NormalLevel extends JPanel implements Runnable {
                     loopCounter = 0;
                     System.out.println("NormalLevel is running for " + timePlay + " seconds");
 
+                    if (showMinusPoint) {
+                        
+                        if (pointMinus < 0) {
+                            jlbMinusPoint.setForeground(Color.red);
+                            jlbMinusPoint.setText(String.valueOf(pointMinus));
+                        } else {
+                            jlbMinusPoint.setForeground(Color.green);
+                            jlbMinusPoint.setText("+" + pointMinus);
+                        }
+                        showMinusPoint = false;
+                        
+                    } else if (!showMinusPoint) {
+                        jlbMinusPoint.setText("");
+                    }
+
+                    if (showPlusTime) {
+                        jlbPlusTime.setText("+" + timePlus);
+                        showPlusTime = false;
+                    } else if (!showPlusTime) {
+                        jlbPlusTime.setText("");
+                    }
                 }
                 loopCounter++;
 
@@ -142,9 +199,17 @@ public class NormalLevel extends JPanel implements Runnable {
                     new Thread(newBird).start(); // Start bird's movement
                 }
 
+                if (random.nextDouble() < 0.01 && grayBirdCount < GRAY_BIRD_COUNT_MAX) { // 0.1% chance
+                    grayBirdCount++;
+                    int flyHeight = random.nextInt(250) + 50; // Random height between 50-300
+                    GrayBird newGrayBird = new GrayBird(flyHeight);
+                    grayBirds.add(newGrayBird);
+                    new Thread(newGrayBird).start(); // Start grayBird's movement
+                }
+
                 if (random.nextDouble() < 0.01 && meteoriteCount < METEORITE_COUNT_MAX) { // 0.1% chance
                     meteoriteCount++;
-                    int fallPosi = random.nextInt(screenWidth - 20); // Random position between 0-screenWidth - 20
+                    int fallPosi = random.nextInt(screenWidth - 30); // Random position between 0 - screenWidth-30
                     Meteorite newMeteorite = new Meteorite(fallPosi);
                     meteorites.add(newMeteorite);
                     new Thread(newMeteorite).start(); // Start Meteorite's movement
@@ -165,14 +230,15 @@ public class NormalLevel extends JPanel implements Runnable {
 
             try {
                 Thread.sleep(16);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(NormalLevel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
     private void update() {
         updateBirds();
+        updateGrayBirds();
         updateMeteorites();
         updateBullet();
         updateLabel();
@@ -195,8 +261,35 @@ public class NormalLevel extends JPanel implements Runnable {
                     bulletCount--;
                     birdCount--;
                     scorePoint -= 10;
+                    pointMinus = -10;
+                    timePlus = 5;
                     timePlay -= 5;
                     bulletHit = true;
+                    showMinusPoint = true;
+                    showPlusTime = true;
+                    break; // Exit inner loop since this bullet is now gone
+                }
+            }
+
+            if (bulletHit) {
+                continue;
+            }
+
+            Iterator<GrayBird> grayBirdIterator = grayBirds.iterator();
+            while (grayBirdIterator.hasNext()) {
+                GrayBird grayBird = grayBirdIterator.next();
+                if (bullet.getBounds().intersects(grayBird.getBounds())) {
+                    grayBird.setIsAlive(false);
+                    bulletIterator.remove();
+                    bulletCount--;
+                    grayBirdCount--;
+                    scorePoint -= 10;
+                    pointMinus = -10;
+                    timePlus = 5;
+                    timePlay -= 5;
+                    bulletHit = true;
+                    showMinusPoint = true;
+                    showPlusTime = true;
                     break; // Exit inner loop since this bullet is now gone
                 }
             }
@@ -215,6 +308,8 @@ public class NormalLevel extends JPanel implements Runnable {
                     bulletCount--;
                     meteoriteCount--;
                     scorePoint += 2;
+                    pointMinus = 2;
+                    showMinusPoint = true;
                     break;
                 }
             }
@@ -249,6 +344,17 @@ public class NormalLevel extends JPanel implements Runnable {
         }
     }
 
+    private void updateGrayBirds() {
+        Iterator<GrayBird> iterator = grayBirds.iterator();
+        while (iterator.hasNext()) {
+            GrayBird grayBird = iterator.next();
+            if (grayBird.getX() > screenWidth) {
+                iterator.remove(); // Safely remove the bird if it’s off-screen
+                grayBirdCount--;
+            }
+        }
+    }
+
     private void updateMeteorites() {
         Iterator<Meteorite> iterator = meteorites.iterator();
         while (iterator.hasNext()) {
@@ -256,16 +362,18 @@ public class NormalLevel extends JPanel implements Runnable {
             if (meteorite.getY() > screenHeight) {
                 iterator.remove(); // Safely remove the bird if it’s off-screen
                 meteoriteCount--;
-                scorePoint -= 10;
+                scorePoint -= 20;
+                pointMinus = -20;
+                showMinusPoint = true;
             }
         }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
+
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-
         try {
             // Background image or color
             g2d.drawImage(ImageIO.read(getClass().getResourceAsStream("/background/Bg2.png")), 0, 0, screenWidth, screenHeight, this);
@@ -279,10 +387,13 @@ public class NormalLevel extends JPanel implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(NormalLevel.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         // Draw each bird
         for (Bird bird : birds) {
             bird.draw(g2d);
+        }
+
+        for (GrayBird grayBird : grayBirds) {
+            grayBird.draw(g2d);
         }
 
         for (Meteorite meteorite : meteorites) {
@@ -294,5 +405,6 @@ public class NormalLevel extends JPanel implements Runnable {
         }
 
         player.draw(g2d);
+
     }
 }

@@ -4,6 +4,7 @@ import gameproject.Bird;
 import gameproject.Bullet;
 import gameproject.Meteorite;
 import gameproject.Player;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -24,6 +25,13 @@ public class EasyLevel extends JPanel implements Runnable {
     private JLabel jlbScorePoint;
     private JLabel jlbTimer;
     Font font20;
+
+    JLabel jlbMinusPoint;
+    private boolean showMinusPoint;
+    private int pointMinus;
+    JLabel jlbPlusTime;
+    private boolean showPlusTime;
+    private int timePlus;
 
     private boolean panelActive;
     private boolean isPlaying;
@@ -57,7 +65,23 @@ public class EasyLevel extends JPanel implements Runnable {
         JLabel jlbLevel = new JLabel("Easy");
         jlbLevel.setBounds(10, 8, 100, 20);
         jlbLevel.setFont(font20);
+        jlbLevel.setForeground(Color.white);
         add(jlbLevel);
+
+        //minusPoint
+        showMinusPoint = false;
+        jlbMinusPoint = new JLabel("");
+        jlbMinusPoint.setBounds(1042, 35, 110, 20);
+        jlbMinusPoint.setFont(font20);
+        add(jlbMinusPoint);
+
+        //plusTime
+        showPlusTime = false;
+        jlbPlusTime = new JLabel("");
+        jlbPlusTime.setBounds(520, 35, 110, 20);
+        jlbPlusTime.setFont(font20);
+        jlbPlusTime.setForeground(Color.green);
+        add(jlbPlusTime);
 
         //timer
         jlbTimer = new JLabel(String.valueOf(GAME_TIMER - timePlay));
@@ -69,6 +93,7 @@ public class EasyLevel extends JPanel implements Runnable {
         jlbScorePoint = new JLabel("Score: " + scorePoint);
         jlbScorePoint.setBounds(975, 8, 110, 20);
         jlbScorePoint.setFont(font20);
+        jlbScorePoint.setForeground(Color.white);
         add(jlbScorePoint);
 
         //set value
@@ -105,6 +130,11 @@ public class EasyLevel extends JPanel implements Runnable {
         meteorites.clear();
         bullets.clear();
 
+        showMinusPoint = false;
+        showPlusTime = false;
+        jlbMinusPoint.setText("");
+        jlbPlusTime.setText("");
+
         birdCount = 0;
         meteoriteCount = 0;
         bulletCount = 0;
@@ -131,6 +161,28 @@ public class EasyLevel extends JPanel implements Runnable {
                     loopCounter = 0;
                     System.out.println("EasyLevel is running for " + timePlay + " seconds");
 
+                    if (showMinusPoint) {
+
+                        if (pointMinus < 0) {
+                            jlbMinusPoint.setForeground(Color.red);
+                            jlbMinusPoint.setText(String.valueOf(pointMinus));
+                        } else {
+                            jlbMinusPoint.setForeground(Color.green);
+                            jlbMinusPoint.setText("+" + pointMinus);
+                        }
+                        showMinusPoint = false;
+
+                    } else if (!showMinusPoint) {
+                        jlbMinusPoint.setText("");
+                    }
+
+                    if (showPlusTime) {
+                        jlbPlusTime.setText("+" + timePlus);
+                        showPlusTime = false;
+                    } else if (!showPlusTime) {
+                        jlbPlusTime.setText("");
+                    }
+
                 }
                 loopCounter++;
 
@@ -144,7 +196,7 @@ public class EasyLevel extends JPanel implements Runnable {
 
                 if (random.nextDouble() < 0.01 && meteoriteCount < METEORITE_COUNT_MAX) { // 0.1% chance
                     meteoriteCount++;
-                    int fallPosi = random.nextInt(screenWidth - 20); // Random position between 0-screenWidth - 20
+                    int fallPosi = random.nextInt(screenWidth - 30); // Random position between 0-screenWidth - 30
                     Meteorite newMeteorite = new Meteorite(fallPosi);
                     meteorites.add(newMeteorite);
                     new Thread(newMeteorite).start(); // Start Meteorite's movement
@@ -165,9 +217,10 @@ public class EasyLevel extends JPanel implements Runnable {
 
             try {
                 Thread.sleep(16);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EasyLevel.class.getName()).log(Level.SEVERE, null, ex);
             }
+
         }
     }
 
@@ -195,8 +248,12 @@ public class EasyLevel extends JPanel implements Runnable {
                     bulletCount--;
                     birdCount--;
                     scorePoint -= 10;
+                    pointMinus = -10;
+                    timePlus = 10;
                     timePlay -= 5;
                     bulletHit = true;
+                    showMinusPoint = true;
+                    showPlusTime = true;
                     break; // Exit inner loop since this bullet is now gone
                 }
             }
@@ -215,6 +272,8 @@ public class EasyLevel extends JPanel implements Runnable {
                     bulletCount--;
                     meteoriteCount--;
                     scorePoint += 2;
+                    pointMinus = 2;
+                    showMinusPoint = true;
                     break;
                 }
             }
@@ -256,7 +315,9 @@ public class EasyLevel extends JPanel implements Runnable {
             if (meteorite.getY() > screenHeight) {
                 iterator.remove(); // Safely remove the bird if it’s off-screen
                 meteoriteCount--;
-                scorePoint -= 10;
+                scorePoint -= 50;
+                pointMinus = -50;
+                showMinusPoint = true;
             }
         }
     }

@@ -1,12 +1,8 @@
 package gameproject;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-
 public class Bird extends Entity {
 
-    private boolean isAlive;
+    protected boolean isAlive;
     
 
     public Bird(int flyHeight) {
@@ -16,22 +12,8 @@ public class Bird extends Entity {
         setIsAlive(true);
         setFrameIndex(0);
         setIsMoving(true);
-        loadImages();
-    }
-
-    @Override
-    protected void loadImages() {
-        frames = new BufferedImage[6];
-        try {
-            for (int i = 0; i < 6; i++) {
-                frames[i] = ImageIO.read(getClass().getResourceAsStream("/Bird1/tile00" + i + ".png"));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        imgWidth = frames[0].getWidth();
-        imgHeight = frames[0].getHeight();
-        setX(getX() - imgWidth);
+        loadImages(6, "/Bird1/tile00");
+        setX(getX() - imgWidth); //starting from left and spawn is hidden
     }
 
     @Override

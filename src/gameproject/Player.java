@@ -6,11 +6,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 public final class Player extends Entity implements MouseMotionListener, MouseListener, KeyListener {
 
@@ -24,7 +21,7 @@ public final class Player extends Entity implements MouseMotionListener, MouseLi
 
     public Player(int x) {
         super(x, 500);
-        loadImages();
+        loadImages(10, "/Gun/tile00");
         setIsMoving(true);
 
         click = false;
@@ -94,20 +91,6 @@ public final class Player extends Entity implements MouseMotionListener, MouseLi
     }
 
     @Override
-    void loadImages() {
-        frames = new BufferedImage[10];
-        try {
-            for (int i = 0; i < 10; i++) {
-                frames[i] = ImageIO.read(getClass().getResourceAsStream("/Gun/tile00" + i + ".png"));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        imgWidth = frames[0].getWidth();
-        imgHeight = frames[0].getHeight();
-    }
-
-    @Override
     public void draw(Graphics2D g2d) {
         // Translate to the center of the character by adding half the width and height
         g2d.translate(x + imgWidth / 2, y + imgHeight / 2);
@@ -121,7 +104,7 @@ public final class Player extends Entity implements MouseMotionListener, MouseLi
         g2d.rotate(-angle);
         g2d.translate(-(x + imgWidth / 2), -(y + imgHeight / 2));
     }
-    
+
     //setter getter
     public boolean getClick() {
         return this.click;

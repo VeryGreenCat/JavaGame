@@ -3,6 +3,8 @@ package gameproject;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public abstract class Entity implements Runnable {
 
@@ -35,7 +37,18 @@ public abstract class Entity implements Runnable {
         return new Rectangle(x, y, imgWidth, imgHeight);
     }
 
-    abstract void loadImages();
+    protected void loadImages(int numberOfFrame, String path) {
+        frames = new BufferedImage[numberOfFrame];
+        try {
+            for (int i = 0; i < numberOfFrame; i++) {
+                frames[i] = ImageIO.read(getClass().getResourceAsStream(path + i + ".png"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        imgWidth = frames[0].getWidth();
+        imgHeight = frames[0].getHeight();
+    }
 
     //getter
     public int getX() {
